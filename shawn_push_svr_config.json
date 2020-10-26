@@ -1,0 +1,25 @@
+{
+  "db_configs?": "数据库配置项",
+  "db_configs" : {
+
+    "db_content_connection_config?": "内容数据库连接信息",
+    "db_content_connection_config" : {
+      "user": "root",
+      "passwd": "m8H1n6Q2C59Y",
+      "host": "127.0.0.1",
+      "port": 3306,
+      "db": "push_svr_content_db"
+    }
+  },
+
+  "log_configs?": "日志配置项",
+  "log_configs" : {
+    "log_path_win?": "windows环境日志路径",
+    "log_path_win" : "D://PushSvrDebugLogs//",
+
+    "log_level?": "日志级别",
+    "log_level" : "DEBUG"
+  }
+
+
+}
