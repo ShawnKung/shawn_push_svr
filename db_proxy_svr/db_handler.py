@@ -18,6 +18,8 @@ Modified By:
 """
 
 import utils
+import log
+import os
 
 
 # 定义未连接数据库异常
@@ -53,12 +55,13 @@ class MysqlHandler:
                 pass
             # 提交到数据库执行
             self.con.commit()
-            self.logger.debug("Query success: {} ".format(sql_query))
+            self.logger.debug(__name__, "Query success: {} ".format(sql_query))
             return True
         except Exception as e:
             # 发生错误时回滚
             self.con.rollback()
-            self.logger.error("Query error: {} {} ".format(e, sql_query))
+            self.logger.error(__name__, "Query error: {} {} "
+                              .format(e, sql_query))
             return False
 
     def connect(self):
@@ -69,13 +72,13 @@ class MysqlHandler:
             import MySQLdb
             connect_func = MySQLdb.connect
         else:
-            self.logger.error("Platform is {}, not supported".format(utils.get_platform()))
+            self.logger.error(__name__, "Platform is {}, not supported".format(utils.get_platform()))
             return False
         try:
             self.con = connect_func(**self.config)
-            self.logger.debug("connect database success : {}".format(self.config))
+            self.logger.debug(__name__, "connect database success : {}".format(self.config))
         except Exception as e:
-            self.logger.error("connect database fails! config:{} , {}".format(e, self.config))
+            self.logger.error(__name__, "connect database fails! config:{} , {}".format(e, self.config))
         if not self.con:
             return False
         self.cur = self.con.cursor()
@@ -83,7 +86,7 @@ class MysqlHandler:
 
     def disconnect(self):
         if self.con:
-            self.logger.debug("Disconnect mysql : {}".format(self.config))
+            self.logger.debug(__name__, "Disconnect mysql : {}".format(self.config))
             self.con.close()
             self.con = None
 
@@ -100,16 +103,16 @@ class MysqlHandler:
         elif isinstance(val, list):
             exe_sql = self.cur.executemany
         else:
-            self.logger.error("Type of val error, should be tuple or list")
+            self.logger.error(__name__, "Type of val error, should be tuple or list")
             return False
         try:
             exe_sql(sql, val)
             self.con.commit()  # 必须提交才生效
-            self.logger.debug("insert data success: {} {}".format(sql, val))
+            self.logger.debug(__name__, "insert data success: {} {}".format(sql, val))
             return True
         except Exception as e:
             self.con.rollback()
-            self.logger.error("insert data error {} : {} {}".format(e, sql, val))
+            self.logger.error(__name__, "insert data error {} : {} {}".format(e, sql, val))
             return False
 
     def select_from_table(self, table_name, **kwargs):
@@ -121,7 +124,7 @@ class MysqlHandler:
         if "where" in kwargs:
             sql_query += " WHERE {}".format(kwargs["where"])
         if "offset" in kwargs and not "count" in kwargs:
-            self.logger.error("Missing \"count\", while \"offset\"={}".format(kwargs["offset"]))
+            self.logger.error(__name__, "Missing \"count\", while \"offset\"={}".format(kwargs["offset"]))
             return None
         elif "count" in kwargs and "offset" in kwargs:
             assert int(kwargs["count"]) > 0
@@ -141,7 +144,8 @@ class MysqlHandler:
             return True
         except Exception as e:
             self.con.rollback()
-            self.logger.error("UPDATE data error {} : {}".format(e, sql_query))
+            self.logger.error(__name__, "UPDATE data error {} : {}"
+                              .format(e, sql_query))
             return False
 
     def select(self, query_string):
